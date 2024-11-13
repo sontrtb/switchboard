@@ -2,13 +2,14 @@ import { Icon } from "@iconify/react/dist/iconify.js"
 import { Fragment } from "react/jsx-runtime";
 
 interface IIncomingCallProps {
+    phone?: string
     isShow: boolean
     onAccept: () => void
     onReject: () => void
 }
 
 function IncomingCall(props: IIncomingCallProps) {
-    const {isShow, onAccept, onReject} = props;
+    const {isShow, onAccept, onReject, phone} = props;
 
     if(!isShow) {
         return <Fragment />
@@ -18,7 +19,7 @@ function IncomingCall(props: IIncomingCallProps) {
         <div className="fixed h-[120px] w-[450px] w-5 bg-slate-50 p-5 z-50 shadow-md rounded-md top-5 right-5 flex justify-between">
             <div>
                 <p className="text-slate-400">Có cuộc gọi đến</p>
-                <h2 className="text-4xl mt-2">103</h2>
+                <h2 className="text-4xl mt-2">{phone}</h2>
             </div>
             <div className="flex items-center gap-4">
                 <button

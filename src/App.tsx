@@ -26,16 +26,26 @@ function App() {
   const userAgentRef = useRef<UserAgent | null>(null)
 
   const [status, setStatus] = useState<EStatus>(EStatus.INIT)
-  const [incomingCall, setIncomingCall] = useState(false)
+  const [incomingCall, setIncomingCall] = useState({
+    isShow: false,
+    phone: ""
+  })
 
   function onInvite(invitation: Invitation) {
-    setIncomingCall(true)
+
+    console.log("sdsdsds", invitation.incomingInviteRequest.earlyDialog.dialogState.remoteURI.normal.user)
+
+    setIncomingCall({
+      isShow: true,
+      phone: invitation.incomingInviteRequest.earlyDialog.dialogState.remoteURI.normal.user
+    })
 
     invitation.stateChange.addListener((newState) => {
       switch (newState) {
         case SessionState.Initial:
           break;
         case SessionState.Establishing:
+          console.log("SessionState Establishing")
           break;
         case SessionState.Established: {
           setStatus(EStatus.CALL)
@@ -208,9 +218,13 @@ function App() {
   return (
     <div className="flex justify-center items-center">
       <IncomingCall
-        isShow={incomingCall}
+        isShow={incomingCall.isShow}
+        phone={incomingCall.phone}
         onAccept={() => {
-          setIncomingCall(false);
+          setIncomingCall({
+            isShow: false,
+            phone: ""
+          });
           (inviterRef.current as Invitation)?.accept({
             sessionDescriptionHandlerOptions: {
               constraints: {
@@ -221,14 +235,17 @@ function App() {
           })
         }}
         onReject={() => {
-          setIncomingCall(false);
+          setIncomingCall({
+            isShow: false,
+            phone: ""
+          });
           (inviterRef.current as Invitation)?.reject();
           inviterRef.current = undefined
         }}
       />
 
       <div
-        className={`relative w-screen flex justify-center items-center ${status === EStatus.CALL ? "block" : "hidden"}`}
+        className={`relative h-screen flex justify-center items-center ${status === EStatus.CALL ? "block" : "hidden"}`}
       >
         <Video
           ref={remoteVideoRef}
