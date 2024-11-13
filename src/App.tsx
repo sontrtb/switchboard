@@ -27,7 +27,6 @@ function App() {
 
   const [status, setStatus] = useState<EStatus>(EStatus.INIT)
   const [incomingCall, setIncomingCall] = useState(false)
-  const [isAnonymous, setIsAnonymous] = useState(false)
 
   function onInvite(invitation: Invitation) {
     setIncomingCall(true)
@@ -60,7 +59,7 @@ function App() {
         case SessionState.Terminating:
         // fall through
         case SessionState.Terminated:
-          cleanupMedia();
+          cleanupMedia(false);
           break;
         default:
           throw new Error("Unknown session state.");
@@ -70,7 +69,8 @@ function App() {
     inviterRef.current = invitation
   }
 
-  const cleanupMedia = () => {
+  const cleanupMedia = (isAnonymous: boolean) => {
+    setStatus(isAnonymous ?  EStatus.INIT : EStatus.REGISTED)
     if (localVideoVideoRef.current) {
       localVideoVideoRef.current.srcObject = null;
       localVideoVideoRef.current?.pause();
@@ -81,7 +81,7 @@ function App() {
     }
   }
 
-  const handleCall = (phone?: string) => {
+  const handleCall = (isAnonymous: boolean, phone?: string) => {
     const destinationCall = !phone ? 'sip:1000@pbx.itel.dev' : `sip:${phone}@pbx.itel.dev`
     const target = UserAgent.makeURI(destinationCall);
 
@@ -126,7 +126,7 @@ function App() {
             console.log("Terminating")
             break
           case SessionState.Terminated:
-            cleanupMedia();
+            cleanupMedia(isAnonymous);
             break;
           default:
             throw new Error("Unknown session state.");
@@ -136,7 +136,6 @@ function App() {
   }
 
   const onCallAnonymous = () => {
-    setIsAnonymous(true)
     const uri = UserAgent.makeURI("sip:anonymous@pbx.itel.dev");
     const userAgentOptions: UserAgentOptions = {
       transportOptions: {
@@ -158,12 +157,11 @@ function App() {
     userAgentRef.current = userAgent
 
     userAgent.start().then(() => {
-      handleCall()
+      handleCall(true)
     });
   }
 
   const endCall = async () => {
-    setStatus(isAnonymous?  EStatus.INIT : EStatus.REGISTED)
     inviterRef.current?.bye()
   }
 
@@ -171,7 +169,6 @@ function App() {
     authorizationUsername: string;
     authorizationPassword: string;
   }) => {
-    setIsAnonymous(false)
     const uri = UserAgent.makeURI(`sip:${values.authorizationUsername}@pbx.itel.dev`);
 
     const userAgentOptions: UserAgentOptions = {
@@ -205,7 +202,7 @@ function App() {
   }
 
   const onCall = (phone: string) => {
-    handleCall(phone)
+    handleCall(false , phone)
   }
 
   return (
