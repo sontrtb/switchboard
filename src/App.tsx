@@ -32,12 +32,10 @@ function App() {
   })
 
   function onInvite(invitation: Invitation) {
-
-    console.log("sdsdsds", invitation.incomingInviteRequest.earlyDialog.dialogState.remoteURI.normal.user)
-
     setIncomingCall({
       isShow: true,
-      phone: invitation.incomingInviteRequest.earlyDialog.dialogState.remoteURI.normal.user
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      phone: (invitation as any ).incomingInviteRequest.earlyDialog.dialogState.remoteURI.normal.user
     })
 
     invitation.stateChange.addListener((newState) => {
